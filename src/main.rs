@@ -203,10 +203,10 @@ fn main() {
 
         for entry in entries {
             match entry.dir_type {
-                DirType::BareGit => println!("(bare) {}", entry.path.display()),
-                DirType::Git => println!("(git) {}", entry.path.display()),
-                DirType::Dir => println!("(dir) {}", entry.path.display()),
-                DirType::WorkTree => println!("(wt) {}", entry.path.display()),
+                DirType::BareGit => println!("(bare)\t{}", entry.path.display()),
+                DirType::Git => println!("(git)\t{}", entry.path.display()),
+                DirType::Dir => println!("(dir)\t{}", entry.path.display()),
+                DirType::WorkTree => println!("(wt)\t{}", entry.path.display()),
             }
         }
     }
