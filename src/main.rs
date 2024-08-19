@@ -27,7 +27,8 @@ fn expand_path(path: &str, home: &Path) -> PathBuf {
 }
 
 fn is_git_repository(dir: &Path) -> bool {
-    if dir.join(".git").is_dir() {
+    if dir.join(".git").is_dir() || dir.join(".git").is_file() {
+        // println!("Hay .git en: {:?}", dir);
         // Este comando falla si es un dir normal. si es bare devuelve false pero
         // no error aunque no entra en este
         // .map(|output| output.status.success())
@@ -38,6 +39,7 @@ fn is_git_repository(dir: &Path) -> bool {
             .arg("rev-parse")
             .arg("--is-inside-work-tree")
             .output();
+        // println!("Output: {:?}", output);
         // let stdout_utf8 = std::str::from_utf8(&output.stdout);
         let stdout_str = match output {
             Ok(output) => String::from_utf8(output.stdout)
@@ -83,13 +85,13 @@ fn is_bare_repository(dir: &Path) -> bool {
     false
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 struct ProjectDir {
     dir_type: DirType,
     path: PathBuf,
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 enum DirType {
     BareGit,
     WorkTree,
@@ -157,13 +159,12 @@ fn process_entries(
                 });
 
                 if let DirType::Git = dir_type {
-                    // Recursively process the directory for additional Git repositories
-                    // let mut nested_results = process_entries(path, 2)
-                    //     .iter()
-                    //     .filter(|&x| x.dir_type != DirType::Dir)
-                    //     .cloned()
-                    //     .collect();
-                    // results.append(&mut nested_results);
+                    let mut nested_results = process_entries(path, 3, Some(99))
+                        .iter()
+                        .filter(|&x| x.dir_type == DirType::Git)
+                        .cloned()
+                        .collect();
+                    results.append(&mut nested_results);
                 }
                 if let DirType::Dir = dir_type {
                     if level <= 1 {
